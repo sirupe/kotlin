@@ -59,19 +59,32 @@ fun test() {
 
 fun cco99p2(words: MutableList<String>, ordinalNumber: Int) {
     println("${toOrdinal(ordinalNumber)} most common word(s):")
+
+    // 1) 단어별 빈도수 세기 (첫 등장 순서 유지)
     val counts = LinkedHashMap<String, Int>()
     for (w in words) counts[w] = (counts[w] ?: 0) + 1
-    val sorted = counts.entries.toList().sortedByDescending { it.value }
-    val distinctFreqs = sorted.map { it.value }.distinct()
-    val target = distinctFreqs.getOrNull(ordinalNumber - 1)
 
-    if (target != null) {
-        sorted.filter { it.value == target }
-              .forEach { println(it.key) }
+    // 2) frequency -> 해당 frequency 가진 단어 수
+    val freqCount = HashMap<Int, Int>()
+    for (c in counts.values) freqCount[c] = (freqCount[c] ?: 0) + 1
+
+    // 3) 각 frequency f에 대해 "더 높은 frequency 가진 단어 개수"
+    val greaterCount = HashMap<Int, Int>()
+    var cumulativeHigher = 0
+    for (f in freqCount.keys.sortedDescending()) {
+        greaterCount[f] = cumulativeHigher
+        cumulativeHigher += freqCount[f]!!
     }
-    println()
 
-    // 재 제출 필요
+    // 4) 순위 판정: (#더 큰 단어 개수 == k-1)인 단어들을 입력 순서대로 출력
+    val targetHigher = ordinalNumber - 1
+    for ((word, cnt) in counts) {
+        if (greaterCount[cnt] == targetHigher) {
+            println(word)
+        }
+    }
+
+    println()
 }
 
 fun main() {
